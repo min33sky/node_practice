@@ -28,6 +28,7 @@ router.get('/', (req, res, next) => {
   res.render('main', {
     title: 'SNS Project',
     twits,
+    user: req.user,
   });
 });
 
