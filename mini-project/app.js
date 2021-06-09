@@ -11,6 +11,8 @@ dotenv.config();
 
 const pageRouter = require('./routes/page');
 const authRouter = require('./routes/auth');
+const postRouter = require('./routes/post');
+const userRouter = require('./routes/user');
 const passportConfig = require('./passport');
 
 const { sequelize } = require('./models');
@@ -33,6 +35,7 @@ sequelize
 
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/img', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(
   express.urlencoded({
@@ -58,6 +61,8 @@ app.use(passport.session());
 
 app.use('/', pageRouter);
 app.use('/auth', authRouter);
+app.use('/post', postRouter);
+app.use('/user', userRouter);
 
 /**
  * 404 Router
