@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exprts = class Domain extends Sequelize.Model {
+module.exports = class Domain extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
