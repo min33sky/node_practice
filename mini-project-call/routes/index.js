@@ -2,9 +2,9 @@ const express = require('express');
 const axios = require('axios');
 
 const router = express.Router();
-const URL = `http://localhost:8002/v1`; // API 서버 주소
+const URL = `http://localhost:8002/v2`; // API 서버 주소
 
-axios.defaults.headers.origin = 'http://localhost:4000'; // origin 헤더 추가
+axios.defaults.headers.origin = 'http://localhost:4000'; //? origin 헤더 추가
 
 const request = async (req, api) => {
   try {
@@ -58,6 +58,13 @@ router.get('/search/:hashtag', async (req, res, next) => {
       next(error);
     }
   }
+});
+
+router.get('/', (req, res) => {
+  //! 실제로 키를 프론트로 보내면 안된다. (보안 위험) 프론트에서 사용해도 되는 키를 별도로 발급받아서 사용하자
+  res.render('main', {
+    key: process.env.CLIENT_SECRET,
+  });
 });
 
 module.exports = router;

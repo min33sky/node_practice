@@ -1,15 +1,37 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 
-const { verifyToken, deprecated } = require('./middlewares');
+const { verifyToken, apiLimiter } = require('./middlewares');
 const { Domain, User, Post, Hashtag } = require('../models');
 
 const router = express.Router();
 
-//! Deprecated 미들웨어 적용
-router.use(deprecated);
+/**
+ * ? CORS 미들웨어 확장하기
+ */
+router.use(async (req, res, next) => {
+  try {
+    const domain = await Domain.findOne({
+      where: {
+        host: new URL(req.get('origin')).host, // Call 서버에서 요청 헤더에 설정한 origin 값 가져와서 프로토콜 떼어내기
+      },
+    });
+    if (domain) {
+      cors({
+        origin: req.get('origin'),
+        credentials: true,
+      })(req, res, next);
+    } else {
+      next();
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
-router.post('/token', async (req, res) => {
+router.post('/token', apiLimiter, async (req, res) => {
   const { clientSecret } = req.body; //? API서버에서 도메인 등록 시 발급 받은 Key
 
   try {
@@ -55,7 +77,7 @@ router.post('/token', async (req, res) => {
   }
 });
 
-router.get('/posts/my', verifyToken, (req, res) => {
+router.get('/posts/my', verifyToken, apiLimiter, (req, res) => {
   Post.findAll({
     where: {
       UserId: req.decoded.id,
@@ -77,7 +99,7 @@ router.get('/posts/my', verifyToken, (req, res) => {
     });
 });
 
-router.get('/posts/hashtag/:title', verifyToken, async (req, res) => {
+router.get('/posts/hashtag/:title', verifyToken, apiLimiter, async (req, res) => {
   try {
     const hashtag = await Hashtag.findOne({
       where: {
@@ -104,10 +126,6 @@ router.get('/posts/hashtag/:title', verifyToken, async (req, res) => {
       message: '서버 에러',
     });
   }
-});
-
-router.get('/test', verifyToken, (req, res) => {
-  res.json(req.decoded);
 });
 
 module.exports = router;
