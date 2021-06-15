@@ -4,8 +4,9 @@
   "description": "Mini Project Test",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app",
-    "test": "jest"
+    "start": "nodemon server",
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "jest": "^27.0.4",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "supertest": "^6.1.3"
   }
 }

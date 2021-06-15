@@ -8,8 +8,8 @@
   },
   "test": {
     "username": "root",
-    "password": null,
-    "database": "database_test",
+    "password": "qwe123",
+    "database": "sns_practice_test",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
