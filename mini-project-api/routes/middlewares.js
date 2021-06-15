@@ -17,6 +17,13 @@ exports.isNotLoggedIn = (req, res, next) => {
   }
 };
 
+/**
+ * JWT 검증 미들웨어
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
+ */
 exports.verifyToken = (req, res, next) => {
   try {
     req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
@@ -36,6 +43,9 @@ exports.verifyToken = (req, res, next) => {
   }
 };
 
+/**
+ * API 요청 사용량 제한 미들웨어
+ */
 exports.apiLimiter = new RateLimit({
   windowMs: 60 * 1000, // 1분
   max: 10, // 10번

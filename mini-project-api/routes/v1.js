@@ -6,7 +6,7 @@ const { Domain, User, Post, Hashtag } = require('../models');
 
 const router = express.Router();
 
-//! Deprecated 미들웨어 적용
+//! Deprecated 미들웨어 적용 (v2 라우터를 사용하라)
 router.use(deprecated);
 
 router.post('/token', async (req, res) => {

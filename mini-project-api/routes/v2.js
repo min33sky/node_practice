@@ -17,10 +17,11 @@ router.use(async (req, res, next) => {
         host: new URL(req.get('origin')).host, // Call 서버에서 요청 헤더에 설정한 origin 값 가져와서 프로토콜 떼어내기
       },
     });
+
     if (domain) {
       cors({
-        origin: req.get('origin'),
-        credentials: true,
+        origin: req.get('origin'), // 해당 주소의 요청만 적용
+        credentials: true, // 쿠키도 함께 전송
       })(req, res, next);
     } else {
       next();
@@ -31,6 +32,9 @@ router.use(async (req, res, next) => {
   }
 });
 
+/**
+ * 토큰을 발급하는 라우터
+ */
 router.post('/token', apiLimiter, async (req, res) => {
   const { clientSecret } = req.body; //? API서버에서 도메인 등록 시 발급 받은 Key
 
@@ -77,6 +81,9 @@ router.post('/token', apiLimiter, async (req, res) => {
   }
 });
 
+/**
+ * 내가 작성한 게시물을 보여준다
+ */
 router.get('/posts/my', verifyToken, apiLimiter, (req, res) => {
   Post.findAll({
     where: {
@@ -99,6 +106,9 @@ router.get('/posts/my', verifyToken, apiLimiter, (req, res) => {
     });
 });
 
+/**
+ * 해당 해시태그의 글을 가져온다.
+ */
 router.get('/posts/hashtag/:title', verifyToken, apiLimiter, async (req, res) => {
   try {
     const hashtag = await Hashtag.findOne({
