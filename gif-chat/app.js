@@ -5,11 +5,14 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const nunjucks = require('nunjucks');
 const dotenv = require('dotenv');
+const ColorHash = require('color-hash');
 
 dotenv.config();
 
 const webSocket = require('./socket');
 const indexRouter = require('./routes');
+
+const connect = require('./schema'); // MONGO DB 연결 함수
 
 const app = express();
 
@@ -19,6 +22,8 @@ nunjucks.configure('views', {
   express: app,
   watch: true,
 });
+
+connect();
 
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -36,6 +41,15 @@ app.use(
     },
   })
 );
+
+//? Session에 고유 컬러 아이디를 저장하는 미들웨어
+app.use((req, res, next) => {
+  if (!req.session.color) {
+    const colorHash = new ColorHash();
+    req.session.color = colorHash.hex(req.sessionID);
+  }
+  next();
+});
 
 app.use('/', indexRouter);
 

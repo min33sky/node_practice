@@ -1,29 +1,35 @@
 const SocketIO = require('socket.io');
 
-module.exports = (server) => {
-  const io = SocketIO(server, { path: '/socket.io' }); // 클라이언트와 연결할 수 있는 경로
+module.exports = (server, app) => {
+  const io = SocketIO(server, { path: '/socket.io' });
+  app.set('io', io); //? 라우터에서 req.app.get('io')로 접근 가능
 
-  io.on('connection', (socket) => {
+  //? io.of: 해당 네임스페이스에 접근하는 메서드
+  const room = io.of('/room');
+  const chat = io.of('/chat');
+
+  room.on('connection', (socket) => {
+    console.log('room 네임스페이스에 접속');
+    socket.on('disconnect', () => {
+      console.log('room 네임스페이스 접속 해제');
+    });
+  });
+
+  chat.on('connection', (socket) => {
+    console.log('chat 네임스페이스에 접속');
     const req = socket.request;
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    console.log('새로운 클라이언트 접속: ', ip, socket.id, req.ip);
+    console.log('## socket.request : ', req);
+    const {
+      headers: { referer },
+    } = req; // 요청 주소가 들어있음
+
+    const roomId = referer.split('/')[referer.split('/').length - 1].replace(/\?.+/, '');
+    console.log('### 방 아이디: ', roomId, referer);
+    socket.join(roomId);
 
     socket.on('disconnect', () => {
-      console.log('클라이언트 접속 해제: ', ip, socket.id);
-      clearInterval(socket.interval);
+      console.log('chat 네임스페이스 접속 해제');
+      socket.leave(roomId);
     });
-
-    socket.on('error', (error) => {
-      console.error(error);
-    });
-
-    //* 클라이언트로부터 메시지
-    socket.on('reply', (data) => {
-      console.log(data);
-    });
-
-    socket.interval = setInterval(() => {
-      socket.emit('news', 'Hello Socket.IO');
-    }, 3000);
   });
 };
