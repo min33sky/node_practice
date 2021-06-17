@@ -25,22 +25,23 @@ nunjucks.configure('views', {
 
 connect();
 
+// Socket.IO에서 세션 미들웨어를 사용하기 위해 변수에 담기
+const sessionMiddleware = session({
+  resave: false,
+  saveUninitialized: false,
+  secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  },
+});
+
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(
-  session({
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.COOKIE_SECRET,
-    cookie: {
-      httpOnly: true,
-      secure: false,
-    },
-  })
-);
+app.use(sessionMiddleware);
 
 //? Session에 고유 컬러 아이디를 저장하는 미들웨어
 app.use((req, res, next) => {
@@ -70,4 +71,4 @@ const server = app.listen(app.get('port'), () => {
   console.log(app.get('port'), '번 포트에서 대기 중');
 });
 
-webSocket(server);
+webSocket(server, app, sessionMiddleware);

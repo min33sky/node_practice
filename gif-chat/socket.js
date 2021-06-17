@@ -1,12 +1,18 @@
 const SocketIO = require('socket.io');
+const cookieParser = require('cookie-parser');
 
-module.exports = (server, app) => {
+module.exports = (server, app, sessionMiddleware) => {
   const io = SocketIO(server, { path: '/socket.io' });
   app.set('io', io); //? 라우터에서 req.app.get('io')로 접근 가능
 
   //? io.of: 해당 네임스페이스에 접근하는 메서드
   const room = io.of('/room');
   const chat = io.of('/chat');
+
+  io.use((socket, next) => {
+    cookieParser(process.env.COOKIE_SECRET)(socket.request, socket.request.res, next);
+    sessionMiddleware(socket.request, socket.request.res, next);
+  });
 
   room.on('connection', (socket) => {
     console.log('room 네임스페이스에 접속');
