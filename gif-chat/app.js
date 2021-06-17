@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const nunjucks = require('nunjucks');
 const dotenv = require('dotenv');
-const ColorHash = require('color-hash');
+const ColorHash = require('color-hash').default;
 
 dotenv.config();
 
@@ -49,6 +49,7 @@ app.use((req, res, next) => {
     const colorHash = new ColorHash();
     req.session.color = colorHash.hex(req.sessionID);
   }
+  console.log('$$$$$$$$$$ req.session.color: ', req.session.color);
   next();
 });
 
